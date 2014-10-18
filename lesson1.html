@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+.domain {   fill:none; stroke:black }
+.tick > line { stroke: black }
+#function { display: inline-block; width: 80%;  }
+.input {
+    margin-bottom: 10px;
+    }
+</style>
+</head>
+<body>
+<h1>Iterative Functions</h1>
+<div class="input">
+<label for="seed">Seed</label>
+<input type="number" name="seed" id="seed" value="0"></input>
+<label for="iterations">Iterations</label>
+<input type="number" name="iterations" id="iterations"
+value="1000"</input><br/>
+<label for="function">Function</label>
+<input type="text" name="function" id="function" value="f = function(x) { return 2.5*x*(1-x) }"></input>
+<br/>
+<button id="doit">Do it!</button>
+</div>
+<div id="svg">
+</div>
+
+<script src="http:////cdnjs.cloudflare.com/ajax/libs/underscore.js/1.7.0/underscore-min.js"></script>
+<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+<script>
+d3.select("#doit").on("click",function() {  
+    var seed=parseFloat(d3.select("#seed")[0][0].value);
+    var iterations=parseInt(d3.select("#iterations")[0][0].value);
+    var itinerary = [seed];
+    var last=seed;
+    var width=800;
+    var height=400;
+    var fu = eval(d3.select("#function")[0][0].value)
+    for (var i = 0; i<iterations; i++) {
+        var last=fu(last);
+        itinerary.push(last);
+        }
+    
+    d3.selectAll("svg").remove();
+    var svg=d3.select("#svg")
+            .append("svg")
+            .attr("width",width)
+            .attr("height",height);
+    
+    var xs=d3.scale.linear()
+               .domain([0,iterations])
+               .range([50,width]);
+
+    var ys=d3.scale.linear()
+        .domain([0,_.max(itinerary)])
+        .range([height-50,0]);
+    
+    var yaxis=d3.svg.axis()
+            .scale(ys)
+            .orient("left")
+            .ticks(10);
+
+    var path = d3.svg.line()
+            .x(function(d,i) { return xs(i) })
+            .y(function(d) { return ys(d) });
+
+    svg.append("path")
+        .attr("class","line")
+        .attr("d",path(itinerary))
+        .attr("stroke","blue")
+        .attr("fill","none")
+        .attr("stroke-width","1");
+    
+    svg.append("g")
+        .attr("transform","translate(50,0)")
+        .call(yaxis);
+    })
+</script>
+</body>
+</html>
